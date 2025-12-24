@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  LinkedintoWhatsapp:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: LinkedIn_to_WhatsApp.handler  # Your Lambda entry point
+      Runtime: python3.12
+      CodeUri: .
+      Layers:
+        - !Ref MyLambdaLayer
+      MemorySize: 128
+      Timeout: 10
+      Events:
+        ProxyApi:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+  OrchestratorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: orchestrator.lambda_handler
+      Runtime: python3.12
+      CodeUri: .     
+      Timeout: 30
+      MemorySize: 128
+      Layers:
+        - !Ref MyLambdaLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(17 16 * * ? *)
+
+
+  MyLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: dependencies-layer.zip
+      CompatibleRuntimes:
+        - python3.12
