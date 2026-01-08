@@ -68,8 +68,16 @@ class RefreshCookies:
             print("PIN submitted.")
             
             # Wait for navigation or success state
-            page.wait_for_load_state("networkidle")
+            time.sleep(10)
+
+            page.screenshot(path="/tmp/success_screen_capture_pin.png")
+            import base64
+            with open("/tmp/success_screen_capture_pin.png", "rb") as image_file:
+                print("SCREENSHOT_SUCCESS_PIN_verification " + base64.b64encode(image_file.read()).decode('utf-8'))
             
         except Exception as e:
             print(f"PIN error: {e}")
-            page.screenshot(path="pin_entry_error.png")
+            page.screenshot(path="/tmp/failure_screen_capture_pin.png")
+            import base64
+            with open("/tmp/failure_screen_capture_pin.png", "rb") as image_file:
+                print("SCREENSHOT_FAILURE_PIN_verification " + base64.b64encode(image_file.read()).decode('utf-8'))
