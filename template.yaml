@@ -2,44 +2,79 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+  # 1. THE FLASK APP (Webhook & API)
   LinkedintoWhatsapp:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: LinkedIn_to_WhatsApp.handler  # Your Lambda entry point
-      Runtime: python3.12
-      CodeUri: .
-      Layers:
-        - !Ref MyLambdaLayer
-      MemorySize: 128
-      Timeout: 10
+      PackageType: Image
+      Architectures:
+        - x86_64
+      MemorySize: 3008
+      Timeout: 60
+      Environment:
+        Variables:
+          PIN_TABLE_NAME: !Ref PinStoreTable
+          WORKER_FUNCTION_NAME: !Ref WorkerFunction
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PinStoreTable
+        - LambdaInvokePolicy:
+            FunctionName: !Ref WorkerFunction
       Events:
         ProxyApi:
           Type: Api
           Properties:
             Path: /{proxy+}
             Method: ANY
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+
+  # 2. THE PLAYWRIGHT WORKER
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      MemorySize: 3008
+      Timeout: 400 # Long enough to wait 5 mins for a PIN
+      # This tells the image to run worker_lambda.py instead of the Flask handler
+      ImageConfig:
+        Command: ["worker_lambda.lambda_handler"]
+      Environment:
+        Variables:
+          PIN_TABLE_NAME: !Ref PinStoreTable
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PinStoreTable
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+
+  # 3. THE DAILY ORCHESTRATOR
   OrchestratorFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: orchestrator.lambda_handler
       Runtime: python3.12
-      CodeUri: .     
-      Timeout: 30
-      MemorySize: 128
-      Layers:
-        - !Ref MyLambdaLayer
+      CodeUri: .
+      Timeout: 300
+      MemorySize: 1280
       Policies:
         - AWSLambdaBasicExecutionRole
       Events:
         DailySchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(25 20 * * ? *)
+            Schedule: cron(30 20 * * ? *)
 
-
-  MyLambdaLayer:
-    Type: AWS::Serverless::LayerVersion
+  # 4. THE DYNAMODB TABLE (Free Tier)
+  PinStoreTable:
+    Type: AWS::Serverless::SimpleTable
     Properties:
-      ContentUri: dependencies-layer.zip
-      CompatibleRuntimes:
-        - python3.12
+      PrimaryKey:
+        Name: owner
+        Type: String
