@@ -211,7 +211,7 @@
         <mxCell id="1EcTM05u3Jauwm6bT1os-46" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="MFA polling" vertex="1">
           <mxGeometry height="30" width="60" x="1190" y="450" as="geometry" />
         </mxCell>
-        <mxCell id="1EcTM05u3Jauwm6bT1os-47" edge="1" parent="1" source="1EcTM05u3Jauwm6bT1os-86" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="1EcTM05u3Jauwm6bT1os-13" value="">
+        <mxCell id="1EcTM05u3Jauwm6bT1os-47" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="1EcTM05u3Jauwm6bT1os-13" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
             <Array as="points">
               <mxPoint x="1282" y="420" />
@@ -228,13 +228,13 @@
             <mxPoint x="-212" y="-75" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="1EcTM05u3Jauwm6bT1os-50" edge="1" parent="1" source="1EcTM05u3Jauwm6bT1os-86" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="1EcTM05u3Jauwm6bT1os-55" value="">
+        <mxCell id="1EcTM05u3Jauwm6bT1os-50" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="1EcTM05u3Jauwm6bT1os-55" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
             <Array as="points">
               <mxPoint x="1280" y="430" />
               <mxPoint x="1280" y="510" />
             </Array>
-            <mxPoint x="1240" y="430" as="sourcePoint" />
+            <mxPoint x="1250" y="430" as="sourcePoint" />
             <mxPoint x="1330" y="510" as="targetPoint" />
           </mxGeometry>
         </mxCell>
@@ -362,8 +362,8 @@
         <mxCell id="1EcTM05u3Jauwm6bT1os-81" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Amazon DynamoDB" vertex="1">
           <mxGeometry height="30" width="60" x="1930" y="590" as="geometry" />
         </mxCell>
-        <mxCell id="1EcTM05u3Jauwm6bT1os-86" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Boxicons_Regular_Vol_3-2636/bx-refresh-498.svg" value="" vertex="1">
-          <mxGeometry height="60" width="60" x="1190" y="400" as="geometry" />
+        <mxCell id="1EcTM05u3Jauwm6bT1os-87" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://icons.diagrams.net/icon-cache1/Social_Messaging___Productivity_Hand_Drawn_Doodle_Glyph-2416/handrawn_refresh_doodle-652.svg" value="" vertex="1">
+          <mxGeometry height="50" width="54.08" x="1192.9599999999998" y="400" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

@@ -14,6 +14,8 @@ A production-grade serverless system that automatically fetches LinkedIn posts a
 
 ## System Architecture
 
+<img src="https://github.com/eshaanganesh2/Adversarial-LinkedIn-WhatsApp-Orchestrator/blob/main/architecture_diagram.png" width="1024"/>
+
 The project utilizes a **Decoupled Worker Pattern** to stay within the strict timeout limits of the Meta WhatsApp Cloud API.
 
 1. **Orchestrator Lambda (Zip)**: Lightweight trigger that invokes the fetcher.
