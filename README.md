@@ -1,6 +1,13 @@
-# Event Driven Serverless Pipeline with Autonomous Session Recovery
+# Event-Driven LinkedIn-to-WhatsApp Automation with Autonomous CAPTCHA Resolution
 
 A serverless system engineered to operate within Meta's strict webhook constraints, featuring a decoupled worker architecture, autonomous multi-stage CAPTCHA resolution, and human-in-the-loop MFA via real-time DynamoDB polling
+
+## Overview & Project Evolution
+This project started with a simple observation: some of the most valuable content I encountered was on LinkedIn, but a few of my relatives, who primarily communicate on WhatsApp, had no visibility into it. I wanted to bridge that gap. <br><br>
+My first attempt was deliberately minimal: a third-party library to extract LinkedIn posts, a cron job to trigger it daily, and Selenium to automate delivery via WhatsApp Web. Scrappy, but it worked (for a while). LinkedIn's bot detection eventually killed the extraction library entirely. The fix was manual: log in from a real device, extract the session cookies, and pass them to the library as an authentication workaround. It worked, but introduced a new fragility, as hardcoded cookies expired unpredictably, requiring manual extraction and redeployment each time. <br> <br>
+That maintenance loop, along with the flaky selenium web automation, became the engineering problem I couldn't leave alone. Migrating to AWS gave me a stable webhook URL for the WhatsApp Business Cloud API to replace the Selenium-based delivery and created the foundation for automating the session refresh flow. But AWS IP addresses are heavily scrutinized by LinkedIn's bot detection. Even with valid credentials, every login attempt from Lambda triggered a CAPTCHA or security challenge. That's where the engineering got genuinely interesting. <br><br>
+I switched to Playwright for its handling of shadow DOMs and iframe-nested security elements, containerized the runtime to clear Lambda's 250MB deployment limit, and automated the full multi-stage challenge flow: checkbox CAPTCHA via Playwright's auto-waiting, audio challenges via pydub normalization and SpeechRecognition transcription, and PIN-based verification via a human-in-the-loop WhatsApp polling bridge backed by DynamoDB. Meta's strict 2-second webhook SLA made a synchronous solution impossible, which drove the decoupled worker architecture at the core of this system. <br><br>
+My family now receives daily LinkedIn posts every morning via WhatsApp, just with considerably more infrastructure than I initially anticipated.
 
 ## Key Features
 
