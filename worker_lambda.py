@@ -10,9 +10,17 @@ import pickle
 from boto3.dynamodb.types import Binary
 from LinkedIn_to_WhatsApp import clear_cookies_jr
 from requests.cookies import RequestsCookieJar, create_cookie
+import copy
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ.get('PIN_TABLE_NAME', 'PinStoreTable'))
+
+payload = {
+    "messaging_product": "whatsapp",
+    "to": "owner",
+    "type": "text",
+    "text": {"body": "Please share LinkedIn login verification code in the specified format:\n\n verification code=<verification_code>"}
+}
 
 def save_playwright_cookies_to_jr(context, username, TMP_DIR):
     # 1. Get cookies from Playwright context
@@ -84,10 +92,11 @@ def poll_for_pin():
         time.sleep(5) # Check every 5 seconds
     return None
 
-def send_to_whatsapp_api(payload):
+def send_to_whatsapp_api(payload,recipient):
     token = os.environ.get("WHATSAPP_BEARER_TOKEN")
     url = os.environ.get("WHATSAPP_API_URL")
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    payload["to"]=recipient
     requests.post(url, headers=headers, json=payload)
 
 def lambda_handler(event, context):
@@ -107,6 +116,7 @@ def lambda_handler(event, context):
             
             # Text Message Logic
             if msg.get('type') == 'text':
+                print("Webhook notification: message")
                 body = msg['text'].get('body', '')
                 
                 # Checking for PIN
@@ -118,8 +128,10 @@ def lambda_handler(event, context):
                 webhook_message_notification=f"New Message from {sender_name} ({sender_number}): {body}"
                 print(webhook_message_notification)
                 # Only send notifications for webhooks generated from other users
+                local_dict = copy.deepcopy(payload)
+                local_dict["text"]["body"]=webhook_message_notification
                 if sender_number != owner:
-                    send_to_whatsapp_api(webhook_message_notification)
+                    send_to_whatsapp_api(local_dict,owner)
 
             # Interactive Message Logic (Refresh Button)
             elif msg.get('type') == 'interactive':
@@ -133,12 +145,13 @@ def lambda_handler(event, context):
 
         # Handling Webhook status updates
         if 'statuses' in value:
+            print("Webhook notification: status")
             status_info = value['statuses'][0]
             webhook_status_notification=f"Webhook status: {status_info.get('status')} , Recipient: +{status_info.get('recipient_id')}"
             print(webhook_status_notification)
-            # Only sending notifications if the webhook status is read or failed and if the webhook is generated from other users
-            if status_info.get('recipient_id') != owner and (status_info.get('status') == "read" or status_info.get('status') == "failed"):
-                send_to_whatsapp_api(webhook_status_notification)
+            # Only sending notifications if the webhook status is failed and if the webhook is generated from other users
+            if status_info.get('recipient_id') != owner and status_info.get('status') == "failed":
+                send_to_whatsapp_api(webhook_status_notification,owner)
 
     except Exception as e:
         print(f" Worker Error: {e}")
@@ -160,20 +173,15 @@ def trigger_cookie_refresh(username,password,owner,TMP_DIR):
         clear_cookies_jr(TMP_DIR)
         global page_obj
         page_obj = get_linkedin_page()
+        print("LinkedIn login page has opened up")
         refresh_service = RefreshCookies()
         print("Beginning of automated login for cookies refresh")
         refresh_service.login(page_obj, username, password)
         
         if refresh_service.is_pin_verification_page(page_obj):
             print("PIN verification page has come up")
-            payload = {
-                "messaging_product": "whatsapp",
-                "to": owner,
-                "type": "text",
-                "text": {"body": "Please share LinkedIn login verification code in the specified format:\n\n verification code=<verification_code>"}
-            }
             print("Sending message for verification code")
-            send_to_whatsapp_api(payload)
+            send_to_whatsapp_api(payload,owner)
             # Waiting for PIN with browser session open
             pin = poll_for_pin()
             
